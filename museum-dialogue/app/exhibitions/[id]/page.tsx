@@ -82,7 +82,9 @@ export default function ExhibitionDetailPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-2">{exhibition.title}</h1>
       {exhibition.description && <p className="text-gray-500 mb-2">{exhibition.description}</p>}
       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-4">
-        <span>📍 {exhibition.location}{exhibition.city ? `（${exhibition.city}）` : ""}</span>
+{(exhibition.location || exhibition.city) && (
+          <span>📍 {[exhibition.location, exhibition.city].filter(Boolean).join('・')}</span>
+        )}
         {(exhibition.start_date || exhibition.end_date) && (
           <span>
             {exhibition.start_date && exhibition.end_date
@@ -91,12 +93,6 @@ export default function ExhibitionDetailPage() {
               ? `${formatDate(exhibition.start_date)} 〜`
               : `〜 ${formatDate(exhibition.end_date!)}`}
           </span>
-        )}
-        {exhibition.official_url && (
-          <a href={exhibition.official_url} target="_blank" rel="noopener noreferrer"
-            className="text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors">
-            公式サイト
-          </a>
         )}
       </div>
 

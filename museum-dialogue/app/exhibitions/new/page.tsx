@@ -17,7 +17,6 @@ export default function NewExhibitionPage() {
     start_date: "",
     end_date: "",
     description: "",
-    official_url: "",
     image_url: "",
   });
   const [loading, setLoading] = useState(false);
@@ -40,22 +39,24 @@ export default function NewExhibitionPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("ログインが必要です"); setLoading(false); return; }
 
+    const payload: Record<string, string | null> = {
+      title: form.title,
+      location: form.location || null,
+      city: form.city || null,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
+      description: form.description || null,
+      image_url: form.image_url || null,
+    }
+
     const { data, error: insertError } = await supabase
       .from("exhibitions")
-      .insert({
-        title: form.title,
-        location: form.location,
-        city: form.city || null,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
-        description: form.description || null,
-        official_url: form.official_url || null,
-        image_url: form.image_url || null,
-      })
+      .insert(payload)
       .select("id")
       .single();
 
-    if (insertError) { setError(insertError.message); setLoading(false); return; }
+    if (insertError) { setError(`登録エラー: ${insertError.message}`); setLoading(false); return; }
+    if (!data?.id) { setError("登録に失敗しました。もう一度お試しください。"); setLoading(false); return; }
     router.push(`/exhibitions/${data.id}`);
   };
 
@@ -75,9 +76,7 @@ export default function NewExhibitionPage() {
           <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
         )}
 
-        {/* 必須フィールド */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">必須項目</p>
 
           <Field label="展覧会タイトル" required>
             <input
@@ -89,21 +88,19 @@ export default function NewExhibitionPage() {
             />
           </Field>
 
-          <Field label="会場名" required>
+          <Field label="会場名">
             <input
               value={form.location}
               onChange={set("location")}
-              required
               placeholder="例：国立西洋美術館"
               className={inputClass}
             />
           </Field>
 
-          <Field label="都市" required>
+          <Field label="都市">
             <input
               value={form.city}
               onChange={set("city")}
-              required
               placeholder="例：東京"
               className={inputClass}
             />
@@ -130,9 +127,7 @@ export default function NewExhibitionPage() {
           </div>
         </div>
 
-        {/* 任意フィールド */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">任意項目</p>
 
           <Field label="説明">
             <textarea
@@ -141,16 +136,6 @@ export default function NewExhibitionPage() {
               placeholder="展覧会の概要や見どころを書いてください..."
               rows={3}
               className={`${inputClass} resize-none`}
-            />
-          </Field>
-
-          <Field label="公式URL">
-            <input
-              type="url"
-              value={form.official_url}
-              onChange={set("official_url")}
-              placeholder="https://example.com"
-              className={inputClass}
             />
           </Field>
 

@@ -42,7 +42,9 @@ export default function ExhibitionCard({ exhibition }: { exhibition: Exhibition 
         <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{exhibition.title}</h3>
         <p className="text-sm text-gray-500 mb-2 line-clamp-2">{exhibition.description}</p>
         <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
-          <span>📍 {exhibition.location}</span>
+          {(exhibition.location || exhibition.city) && (
+            <span>📍 {[exhibition.location, exhibition.city].filter(Boolean).join('・')}</span>
+          )}
           <DateRange start_date={exhibition.start_date} end_date={exhibition.end_date} />
         </div>
       </div>
